@@ -1,0 +1,8 @@
+{
+  "name": "tv-cast-demo",
+  "version": "1.0.0",
+  "description": "Play website songs on Samsung TV via Wi-Fi",
+  "main": "api/index.js",
+  "license": "MIT",
+  "dependencies": {}
+}
