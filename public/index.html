@@ -2,45 +2,46 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Play Song on Samsung TV</title>
+  <title>Samsung TV Pair & Play</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <style>
-    body {
-      font-family: sans-serif;
-      background: #101010;
-      color: #fff;
-      text-align: center;
-      padding: 60px 20px;
-    }
+    body { font-family:sans-serif; background:#101010; color:#fff; text-align:center; padding:40px; }
     input, button {
-      padding: 12px 14px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
+      padding:12px 14px; border:none; border-radius:8px;
+      font-size:16px; margin:6px;
     }
-    input {
-      width: 70%;
-      margin-right: 8px;
-    }
-    button {
-      background: #00bcd4;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover { background: #0097a7; }
+    button { background:#00bcd4; color:white; cursor:pointer; }
+    button:hover { background:#0097a7; }
   </style>
 </head>
 <body>
-  <h1>🎧 Play Song on Samsung TV</h1>
-  <input id="songUrl" placeholder="Enter public MP3 URL">
-  <button onclick="send()">▶️ Play</button>
+  <h1>📺 Samsung TV Pair</h1>
+  <div id="pairBox">
+    <input id="pairCode" placeholder="Enter TV Code">
+    <button onclick="pair()">Pair TV</button>
+  </div>
+
+  <div id="playerBox" style="display:none;">
+    <input id="songUrl" placeholder="Enter Song URL">
+    <button onclick="send()">▶️ Play on TV</button>
+  </div>
+
   <p id="msg"></p>
 
   <script>
+    let code = null;
+    async function pair(){
+      code = document.getElementById('pairCode').value.trim();
+      if(!code) return alert("Enter TV code!");
+      document.getElementById('pairBox').style.display = 'none';
+      document.getElementById('playerBox').style.display = 'block';
+      document.getElementById('msg').innerText = "✅ Paired with TV: " + code;
+    }
+
     async function send(){
       const url = document.getElementById('songUrl').value.trim();
-      if(!url) return alert("Enter MP3 URL first!");
-      const res = await fetch("/api/play?url="+encodeURIComponent(url));
+      if(!url) return alert("Enter URL!");
+      const res = await fetch(`/api/play?code=${code}&url=${encodeURIComponent(url)}`);
       const text = await res.text();
       document.getElementById('msg').innerText = text;
     }
