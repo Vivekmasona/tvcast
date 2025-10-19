@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Samsung TV Pair & Play</title>
+  <title>Samsung TV Auto-Pair</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <style>
     body { font-family:sans-serif; background:#101010; color:#fff; text-align:center; padding:40px; }
@@ -15,36 +15,40 @@
   </style>
 </head>
 <body>
-  <h1>📺 Samsung TV Pair</h1>
-  <div id="pairBox">
-    <input id="pairCode" placeholder="Enter TV Code">
-    <button onclick="pair()">Pair TV</button>
-  </div>
+  <h1>📺 Samsung TV Auto Pair</h1>
+  <p id="status">🔍 Searching for TV...</p>
 
   <div id="playerBox" style="display:none;">
-    <input id="songUrl" placeholder="Enter Song URL">
+    <input id="songUrl" placeholder="Enter Song URL (MP3)">
     <button onclick="send()">▶️ Play on TV</button>
   </div>
 
   <p id="msg"></p>
 
   <script>
-    let code = null;
-    async function pair(){
-      code = document.getElementById('pairCode').value.trim();
-      if(!code) return alert("Enter TV code!");
-      document.getElementById('pairBox').style.display = 'none';
-      document.getElementById('playerBox').style.display = 'block';
-      document.getElementById('msg').innerText = "✅ Paired with TV: " + code;
+    async function checkTV() {
+      const res = await fetch("/api/status");
+      const text = await res.text();
+      if (text === "online") {
+        document.getElementById('status').innerText = "✅ TV Connected!";
+        document.getElementById('playerBox').style.display = "block";
+      } else {
+        document.getElementById('status').innerText = "❌ TV not found (waiting...)";
+        document.getElementById('playerBox').style.display = "none";
+      }
     }
 
     async function send(){
       const url = document.getElementById('songUrl').value.trim();
-      if(!url) return alert("Enter URL!");
-      const res = await fetch(`/api/play?code=${code}&url=${encodeURIComponent(url)}`);
+      if(!url) return alert("Enter Song URL!");
+      const res = await fetch("/api/play?url="+encodeURIComponent(url));
       const text = await res.text();
       document.getElementById('msg').innerText = text;
     }
+
+    // Check every 5s
+    setInterval(checkTV, 5000);
+    checkTV();
   </script>
 </body>
 </html>
