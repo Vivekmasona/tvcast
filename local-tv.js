@@ -3,11 +3,10 @@ import fetch from "node-fetch";
 import Ssdp from "node-ssdp";
 import MediaRendererClient from "upnp-mediarenderer-client";
 
-const VERCEL_URL = "https://yourapp.vercel.app"; // change this
-const CODE = "1234"; // You can change code anytime
-
+const VERCEL_URL = "https://tvcast.vercel.app"; // change to your domain
 let tvUrl = null;
 
+// Discover Samsung TV via DLNA
 console.log("🔍 Searching for Samsung TV...");
 const ssdp = new Ssdp.Client();
 ssdp.on("response", (headers, code, rinfo) => {
@@ -18,21 +17,23 @@ ssdp.on("response", (headers, code, rinfo) => {
 });
 ssdp.search("urn:schemas-upnp-org:device:MediaRenderer:1");
 
-// Register this TV on Vercel
-await fetch(`${VERCEL_URL}/api?register=${CODE}`);
-console.log("📡 Registered with code:", CODE);
-
-// Poll for new song commands
+// TV heartbeat (auto-pair signal)
 setInterval(async () => {
   if (!tvUrl) return;
-  const res = await fetch(`${VERCEL_URL}/api/poll?code=${CODE}`);
+  await fetch(`${VERCEL_URL}/api?ping=tv`);
+}, 5000);
+
+// Poll for song commands
+setInterval(async () => {
+  if (!tvUrl) return;
+  const res = await fetch(`${VERCEL_URL}/api/poll`);
   const song = (await res.text()).trim();
   if (song) {
-    console.log("🎵 Playing:", song);
+    console.log("🎵 New Song:", song);
     const client = new MediaRendererClient(tvUrl);
-    client.load(song, { autoplay: true }, (err) => {
+    client.load(song, { autoplay: true }, err => {
       if (err) console.error("❌ Error:", err);
-      else console.log("▶️ Now playing on TV");
+      else console.log("▶️ Playing on TV");
     });
   }
 }, 5000);
