@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Play Song on Samsung TV</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #101010;
+      color: #fff;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    input, button {
+      padding: 12px 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+    input {
+      width: 70%;
+      margin-right: 8px;
+    }
+    button {
+      background: #00bcd4;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background: #0097a7; }
+  </style>
+</head>
+<body>
+  <h1>🎧 Play Song on Samsung TV</h1>
+  <input id="songUrl" placeholder="Enter public MP3 URL">
+  <button onclick="send()">▶️ Play</button>
+  <p id="msg"></p>
+
+  <script>
+    async function send(){
+      const url = document.getElementById('songUrl').value.trim();
+      if(!url) return alert("Enter MP3 URL first!");
+      const res = await fetch("/api/play?url="+encodeURIComponent(url));
+      const text = await res.text();
+      document.getElementById('msg').innerText = text;
+    }
+  </script>
+</body>
+</html>
